@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/efacilitation/eventric-remote-socketio.git"
   },
+  "main": "dist/socketio_remote_service.js",
   "scripts": {
     "test": "node_modules/.bin/coffeegulp spec",
     "prepublish": "node_modules/.bin/coffee -o dist -c src/socketio_remote_service.coffee"
