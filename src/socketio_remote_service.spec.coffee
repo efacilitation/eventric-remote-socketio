@@ -17,9 +17,12 @@ describe 'SocketIORemoteService', ->
     rpcRequest =
       rpcId: rpcId
       do: 'something'
-    socketIOStub = sandbox.stub()
-    socketIOStub.on = sandbox.stub().yields rpcRequest
-    socketIOStub.emit = sandbox.stub()
+    socketIOSocketStub = sandbox.stub()
+    socketIOSocketStub.on = sandbox.stub().yields rpcRequest
+    socketIOSocketStub.emit = sandbox.stub()
+    socketIOStub =
+      sockets:
+        on: sandbox.stub().yields socketIOSocketStub
 
     expectedRpcResponse =
       rpcId: rpcId
@@ -27,4 +30,4 @@ describe 'SocketIORemoteService', ->
       data: handleResult
 
     socketIORemoteService.initialize remoteServiceStub, socketIOStub
-    expect(socketIOStub.emit.calledWith 'RPC_Response', expectedRpcResponse).to.be.true
+    expect(socketIOSocketStub.emit.calledWith 'RPC_Response', expectedRpcResponse).to.be.true
