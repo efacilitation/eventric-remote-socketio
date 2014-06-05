@@ -9,14 +9,14 @@ class SocketIORemoteService
           socket.emit 'RPC_Response', {rpcId: rpcId, err: err, data: response}
 
 
-  _removeCircularReferences: (data, foundReferences = []) ->
-    foundReferences.push data
+  _removeCircularReferences: (data, parentReferences = []) ->
+    parentReferencesAndSelf = parentReferences.concat [data]
     for key, value of data
       if typeof value is 'object'
-        if foundReferences.indexOf(value) > -1
+        if parentReferencesAndSelf.indexOf(value) > -1
           data[key] = '[Circular]'
         else
-          @_removeCircularReferences value, foundReferences
+          @_removeCircularReferences value, parentReferencesAndSelf
 
 
 

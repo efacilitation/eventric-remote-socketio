@@ -40,7 +40,7 @@ describe 'SocketIORemoteService', ->
     expect(socketIOSocketMock.emit.calledWith 'RPC_Response', expectedRpcResponse).to.be.true
 
 
-  it 'should remove all circular references before sending the response', ->
+  it 'should remove circular references before sending the response', ->
     responseData =
       number: 5
       string: 'string'
@@ -49,9 +49,9 @@ describe 'SocketIORemoteService', ->
 
     responseData.circularReference = responseData
     responseData.object.nestedCircularReference = responseData.object
+
     remoteServiceMock.handle.yields null, responseData
     socketIORemoteService.initialize remoteServiceMock, socketIOMock
-
     receivedResponse = socketIOSocketMock.emit.getCall(0).args[1]
     receivedData = receivedResponse.data
 
@@ -60,3 +60,21 @@ describe 'SocketIORemoteService', ->
     expect(receivedData.object.foo).to.equal 'bar'
     expect(receivedData.circularReference).to.equal '[Circular]'
     expect(receivedData.object.nestedCircularReference).to.equal '[Circular]'
+
+
+  it 'should not mark multiple references to the same object in different paths as circular', ->
+    reference =
+      key: 'value'
+    responseData =
+      firstPath:
+        reference: reference
+      secondPath:
+        reference: reference
+
+    remoteServiceMock.handle.yields null, responseData
+    socketIORemoteService.initialize remoteServiceMock, socketIOMock
+    receivedResponse = socketIOSocketMock.emit.getCall(0).args[1]
+    receivedData = receivedResponse.data
+
+    expect(receivedData.firstPath.reference).to.deep.equal key: 'value'
+    expect(receivedData.secondPath.reference).to.deep.equal key: 'value'

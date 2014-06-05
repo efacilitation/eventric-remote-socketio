@@ -7,7 +7,7 @@
     "eventric-remote"
   ],
   "author": "eFa Team <team@efa-gmbh.com>",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "repository": {
     "type": "git",
     "url": "https://github.com/efacilitation/eventric-remote-socketio.git"
