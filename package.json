@@ -1,10 +1,11 @@
 {
-  "name": "eventric-remote-socketio",
-  "description": "eventric SocketIO RemoteService Adapter",
+  "name": "eventric-remote-socketio-endpoint",
+  "description": "eventric SocketIO RemoteEndpoint",
   "url": "http://eventric.org",
   "keywords": [
     "eventric",
-    "eventric-remote"
+    "eventric-remote",
+    "socketio"
   ],
   "author": "eFa Team <team@efa-gmbh.com>",
   "version": "0.0.13",
@@ -12,10 +13,10 @@
     "type": "git",
     "url": "https://github.com/efacilitation/eventric-remote-socketio.git"
   },
-  "main": "dist/socketio_remote_service.js",
+  "main": "dist/endpoint.js",
   "scripts": {
     "test": "node_modules/.bin/coffeegulp spec",
-    "prepublish": "node_modules/.bin/coffee -o dist -c src/socketio_remote_service.coffee"
+    "prepublish": "node_modules/.bin/coffee -o dist -c src/endpoint.coffee"
   },
   "dependencies": {
     "socket.io": "*"
@@ -28,7 +29,8 @@
     "gulp-util": "*",
     "gulp-mocha": "*",
     "gulp-watch": "*",
-    "coffeegulp": "*",
-    "sinon": "*"
+    "sinon": "*",
+    "eventric": "*",
+    "eventric-remote-socketio-client": "*"
   }
 }
