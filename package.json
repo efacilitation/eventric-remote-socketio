@@ -11,11 +11,11 @@
   "version": "0.0.13",
   "repository": {
     "type": "git",
-    "url": "https://github.com/efacilitation/eventric-remote-socketio.git"
+    "url": "https://github.com/efacilitation/eventric-remote-socketio-endpoint.git"
   },
   "main": "dist/endpoint.js",
   "scripts": {
-    "test": "node_modules/.bin/coffeegulp spec",
+    "test": "node_modules/.bin/gulp spec",
     "prepublish": "node_modules/.bin/coffee -o dist -c src/endpoint.coffee"
   },
   "dependencies": {

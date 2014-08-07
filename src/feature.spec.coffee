@@ -3,7 +3,7 @@ expect   = chai.expect
 sinon    = require 'sinon'
 eventric = require 'eventric'
 
-describe 'SocketIO Remote', ->
+describe.skip 'SocketIO Remote', ->
   socketIORemoteEndpoint = null
   doSomethingStub = null
 
