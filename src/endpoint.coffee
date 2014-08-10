@@ -19,7 +19,8 @@ class SocketIORemoteEndpoint
 
     if listen
       @_io.listen 3000
-      callback()
+
+    callback()
 
 
   close: ->
