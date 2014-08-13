@@ -3,7 +3,7 @@ expect   = chai.expect
 sinon    = require 'sinon'
 eventric = require 'eventric'
 
-describe.skip 'SocketIO Remote', ->
+describe 'SocketIO Remote', ->
   socketIORemoteEndpoint = null
   doSomethingStub = null
 
@@ -30,7 +30,7 @@ describe.skip 'SocketIO Remote', ->
             callback()
 
         exampleContext.initialize ->
-          doneee()
+          done()
 
 
     describe 'when we then create a remote with a socketio client', ->
@@ -48,5 +48,5 @@ describe.skip 'SocketIO Remote', ->
       it 'then we should be able to receive and execute commands', (done) ->
         exampleRemote.command 'DoSomething'
         .then ->
-          expect(doSomethingStub).to.have.been.caĺledOnce
+          expect(doSomethingStub).to.have.been.calledOnce
           done()
