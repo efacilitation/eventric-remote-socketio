@@ -1,7 +1,9 @@
-chai     = require 'chai'
-expect   = chai.expect
-sinon    = require 'sinon'
-eventric = require 'eventric'
+chai      = require 'chai'
+expect    = chai.expect
+sinon     = require 'sinon'
+eventric  = require 'eventric'
+sinonChai = require 'sinon-chai'
+chai.use sinonChai
 
 describe 'SocketIO Remote', ->
   socketIORemoteEndpoint = null
