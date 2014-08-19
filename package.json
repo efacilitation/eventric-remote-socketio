@@ -31,7 +31,6 @@
     "gulp-watch": "*",
     "sinon": "*",
     "sinon-chai": "*",
-    "eventric": "*",
-    "eventric-remote-socketio-client": "*"
+    "sinon": "*"
   }
 }
