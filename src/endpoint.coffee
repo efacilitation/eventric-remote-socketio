@@ -27,8 +27,8 @@ class SocketIORemoteEndpoint
   setRPCHandler: (@_handleRPCRequest) ->
 
 
-  publish: (channel, eventName, payload) ->
-    @_io.to(channel).emit eventName, payload
+  publish: (eventName, payload) ->
+    @_io.to(eventName).emit eventName, payload
 
 
 module.exports = new SocketIORemoteEndpoint

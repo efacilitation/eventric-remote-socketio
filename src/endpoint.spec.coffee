@@ -75,7 +75,7 @@ describe 'endpoint', ->
 
       ioStub.to = sandbox.stub().returns channelStub
       payload = {}
-      endpoint.publish 'MyChannel', 'MyEventName', payload
+      endpoint.publish 'MyEventName', payload
 
-      expect(ioStub.to.calledWith 'MyChannel').to.be.ok
+      expect(ioStub.to.calledWith 'MyEventName').to.be.ok
       expect(channelStub.emit.calledWith 'MyEventName', payload).to.be.ok
