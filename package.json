@@ -29,8 +29,6 @@
     "gulp-util": "*",
     "gulp-mocha": "*",
     "gulp-watch": "*",
-    "sinon": "*",
-    "sinon-chai": "*",
     "sinon": "*"
   }
 }
