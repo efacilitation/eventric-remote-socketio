@@ -39,7 +39,7 @@ describe 'SocketIO Remote', ->
       exampleRemote = null
       beforeEach (done) ->
         sockeIORemoteClient = require 'eventric-remote-socketio-client'
-        sockeIORemoteClient.initialize ->
+        sockeIORemoteClient.initialize null, ->
           exampleRemote = eventric.remote 'Example'
           exampleRemote.addClient 'socketio', sockeIORemoteClient
           exampleRemote.set 'default client', 'socketio'
