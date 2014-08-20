@@ -1,7 +1,6 @@
 class SocketIORemoteEndpoint
 
   initialize: (options = {}, callback = ->) ->
-
     if options.ioInstance
       @_io = options.ioInstance
     else
@@ -16,6 +15,15 @@ class SocketIORemoteEndpoint
             rpcId: rpcId
             err: err
             data: response
+
+
+      socket.on 'JoinRoom', (roomName) ->
+        socket.join roomName
+
+
+      socket.on 'LeaveRoom', (roomName) ->
+        socket.leave roomName
+
 
     callback()
 

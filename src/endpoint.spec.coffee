@@ -28,6 +28,32 @@ describe 'endpoint', ->
 
       expect(ioStub.sockets.on.calledWith 'connection', sinon.match.func).to.be.ok
 
+
+  describe 'Socket Events', ->
+    socketStub = null
+
+    beforeEach ->
+      socketStub =
+        on: sandbox.stub()
+        join: sandbox.stub()
+        leave: sandbox.stub()
+      ioStub.sockets.on.withArgs('connection').yields socketStub
+
+
+    it 'on JoinRoom it should join the room', ->
+      socketStub.on.withArgs('JoinRoom').yields 'RoomName'
+      endpoint.initialize
+        ioInstance: ioStub
+      expect(socketStub.join.calledWith 'RoomName').to.be.ok
+
+
+    it 'on LeaveRoom should leave the room', ->
+      socketStub.on.withArgs('LeaveRoom').yields 'RoomName'
+      endpoint.initialize
+        ioInstance: ioStub
+      expect(socketStub.leave.calledWith 'RoomName').to.be.ok
+
+
   describe '#setRPCHandler', ->
     socketStub = null
 
