@@ -63,7 +63,17 @@ describe 'SocketIO Remote', ->
 
 
     it 'then we should be able to subscribe handlers to domain events', (done) ->
-      exampleRemote.subscribeToDomainEvent 'SomethingCreated', ->
+      handlerFn = ->
+        exampleRemote.unsubscribeFromDomainEvent 'SomethingCreated', handlerFn
         done()
+      exampleRemote.subscribeToDomainEvent 'SomethingCreated', handlerFn
       exampleRemote.command 'CreateSomething'
-      .then ->
+
+
+    it 'then we should be able to subscribe handlers to domain events with specific aggregate ids', (done) ->
+      exampleRemote.command 'CreateSomething'
+      .then (id) ->
+        exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified', id, ->
+          done()
+        exampleRemote.command 'ModifySomething',
+          id: id
