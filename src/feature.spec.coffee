@@ -7,49 +7,63 @@ chai.use sinonChai
 
 describe 'SocketIO Remote', ->
   socketIORemoteEndpoint = null
+  socketIORemoteClient = null
+  socketServer = null
+  socketClient = null
+
   doSomethingStub = null
 
+  before (done) ->
+    socketServer = require('socket.io')()
+    socketServer.listen 3000
+    socketIORemoteEndpoint = require './endpoint'
+    socketIORemoteEndpoint.initialize ioInstance: socketServer, ->
+      eventric.addRemoteEndpoint 'socketio', socketIORemoteEndpoint
+      socketClient = require('socket.io-client')('http://localhost:3000')
+      socketClient.on 'connect', ->
+        socketIORemoteClient = require 'eventric-remote-socketio-client'
+        socketIORemoteClient.initialize ioClientInstance: socketClient, ->
+          done()
+
+
   after ->
-    # socket.io close does not work with v1.0, thats why
+    # socket.io close does not work with v1.0
     if @currentTest.state is 'passed'
       process.exit 0
-
     else
       process.exit 1
 
 
   describe 'given we created an example context and added a socketio remote endpoint', ->
+    exampleRemote = null
+    socketIORemoteClient = null
+
     beforeEach (done) ->
-      socketIORemoteEndpoint = require './endpoint'
-      socketIORemoteEndpoint.initialize null, ->
-        eventric.addRemoteEndpoint 'socketio', socketIORemoteEndpoint
 
-        doSomethingStub = sinon.stub()
-        exampleContext = eventric.context 'Example'
-        exampleContext.addCommandHandlers
-          DoSomething: (params, callback) ->
-            doSomethingStub()
-            callback()
+      exampleContext = require './example_context'
 
-        exampleContext.initialize ->
-          done()
+      doSomethingStub = sinon.stub()
+      exampleContext.addCommandHandlers
+        DoSomething: (params, callback) ->
+          doSomethingStub()
+          callback()
 
-
-    describe 'when we then create a remote with a socketio client', ->
-      exampleRemote = null
-      beforeEach (done) ->
-        sockeIORemoteClient = require 'eventric-remote-socketio-client'
-        sockeIORemoteClient.initialize null, ->
-          exampleRemote = eventric.remote 'Example'
-          exampleRemote.addClient 'socketio', sockeIORemoteClient
-          exampleRemote.set 'default client', 'socketio'
-
-          done()
+      exampleContext.initialize ->
+        exampleRemote = eventric.remote 'Example'
+        exampleRemote.addClient 'socketio', socketIORemoteClient
+        exampleRemote.set 'default client', 'socketio'
+        done()
 
 
-      it 'then we should be able to receive and execute commands', (done) ->
-        exampleRemote.command 'DoSomething'
-        .then ->
-          expect(doSomethingStub).to.have.been.calledOnce
-          done()
+    it 'then we should be able to receive and execute commands', (done) ->
+      exampleRemote.command 'DoSomething'
+      .then ->
+        expect(doSomethingStub).to.have.been.calledOnce
+        done()
 
+
+    it 'then we should be able to subscribe handlers to domain events', (done) ->
+      exampleRemote.subscribeToDomainEvent 'SomethingCreated', ->
+        done()
+      exampleRemote.command 'CreateSomething'
+      .then ->
