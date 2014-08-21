@@ -93,15 +93,38 @@ describe 'endpoint', ->
 
   describe '#publish', ->
 
-    it 'should emit an event with payload to the correct channel', ->
+    channelStub = null
+
+    beforeEach ->
       channelStub =
-       emit: sandbox.stub()
+        emit: sandbox.stub()
       endpoint.initialize
         ioInstance: ioStub
 
       ioStub.to = sandbox.stub().returns channelStub
-      payload = {}
-      endpoint.publish 'MyEventName', payload
 
-      expect(ioStub.to.calledWith 'MyEventName').to.be.ok
-      expect(channelStub.emit.calledWith 'MyEventName', payload).to.be.ok
+    describe 'given only a context name', ->
+      it 'should emit an event with payload to the correct channel', ->
+        payload = {}
+        endpoint.publish 'context', payload
+
+        expect(ioStub.to.calledWith 'context').to.be.ok
+        expect(channelStub.emit.calledWith 'context', payload).to.be.ok
+
+
+    describe 'given a context name and event name', ->
+      it 'should emit an event with payload to the correct channel', ->
+        payload = {}
+        endpoint.publish 'context', 'EventName', payload
+
+        expect(ioStub.to.calledWith 'context/EventName').to.be.ok
+        expect(channelStub.emit.calledWith 'context/EventName', payload).to.be.ok
+
+
+    describe 'given a context name, event name and aggregate id', ->
+      it 'should emit an event with payload to the correct channel', ->
+        payload = {}
+        endpoint.publish 'context', 'EventName', '12345', payload
+
+        expect(ioStub.to.calledWith 'context/EventName/12345').to.be.ok
+        expect(channelStub.emit.calledWith 'context/EventName/12345', payload).to.be.ok

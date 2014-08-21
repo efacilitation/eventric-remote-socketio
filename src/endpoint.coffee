@@ -35,8 +35,18 @@ class SocketIORemoteEndpoint
   setRPCHandler: (@_handleRPCRequest) ->
 
 
-  publish: (eventName, payload) ->
-    @_io.to(eventName).emit eventName, payload
+  publish: (context, [domainEventName, aggregateId]..., payload) ->
+    fullEventName = @_getFullEventName context, domainEventName, aggregateId
+    @_io.to(fullEventName).emit fullEventName, payload
+
+
+  _getFullEventName: (context, domainEventName, aggregateId) ->
+    fullEventName = context
+    if domainEventName
+      fullEventName += "/#{domainEventName}"
+    if aggregateId
+      fullEventName += "/#{aggregateId}"
+    fullEventName
 
 
 module.exports = new SocketIORemoteEndpoint
