@@ -13,10 +13,10 @@
     "type": "git",
     "url": "https://github.com/efacilitation/eventric-remote-socketio-endpoint.git"
   },
-  "main": "dist/endpoint.js",
+  "main": "build/src/endpoint.js",
   "scripts": {
     "test": "node_modules/.bin/gulp spec",
-    "prepublish": "node_modules/.bin/coffee -o dist -c src/endpoint.coffee"
+    "prepublish": "node_modules/.bin/gulp build"
   },
   "dependencies": {
     "socket.io": "*"
@@ -24,11 +24,14 @@
   "devDependencies": {
     "coffee-script": "*",
     "chai": "*",
+    "del": "*",
     "gulp": "*",
-    "gulp-grep-stream": "*",
     "gulp-util": "*",
     "gulp-mocha": "*",
     "gulp-watch": "*",
+    "gulp-bump": "*",
+    "gulp-coffee": "*",
+    "run-sequence": "*",
     "sinon": "*",
     "sinon-chai": "*",
     "socket.io-client": "*",
