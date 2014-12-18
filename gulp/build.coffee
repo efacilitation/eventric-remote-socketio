@@ -10,6 +10,6 @@ module.exports = (gulp) ->
     del './build', force: true, next
 
   gulp.task 'build:src', ->
-    gulp.src(['index.coffee', '+(src)/!(*.spec)*.coffee'])
+    gulp.src(['index.coffee', 'src/!(*.spec)*.coffee'])
       .pipe(coffee({bare: true}))
       .pipe(gulp.dest('build/src'))
