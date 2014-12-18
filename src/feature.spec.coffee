@@ -27,11 +27,8 @@ describe 'SocketIO Remote', ->
 
 
   after ->
-    # socket.io close does not work with v1.0
-    if @currentTest.state is 'passed'
-      process.exit 0
-    else
-      process.exit 1
+    socketIORemoteEndpoint.close()
+    require._cache = {}
 
 
   describe 'given we created an example context and added a socketio remote endpoint', ->
@@ -63,7 +60,8 @@ describe 'SocketIO Remote', ->
 
 
     it 'then we should be able to subscribe handlers to domain events', (done) ->
-      subscriberId = exampleRemote.subscribeToDomainEvent 'SomethingCreated', ->
+      exampleRemote.subscribeToDomainEvent 'SomethingCreated'
+      .then (subscriberId) ->
         exampleRemote.unsubscribeFromDomainEvent subscriberId
         done()
       exampleRemote.command 'CreateSomething'

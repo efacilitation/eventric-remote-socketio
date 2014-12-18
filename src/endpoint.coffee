@@ -29,7 +29,7 @@ class SocketIORemoteEndpoint
 
 
   close: ->
-    @_io.engine.close()
+    @_io.close()
 
 
   setRPCHandler: (@_handleRPCRequest) ->
