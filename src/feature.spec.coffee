@@ -28,6 +28,7 @@ describe 'SocketIO Remote', ->
 
   after ->
     socketIORemoteEndpoint.close()
+    socketIORemoteClient.disconnect()
     require._cache = {}
 
 
