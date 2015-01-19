@@ -42,11 +42,12 @@ describe 'SocketIO Remote', ->
 
       doSomethingStub = sinon.stub()
       exampleContext.addCommandHandlers
-        DoSomething: (params, callback) ->
+        DoSomething: (params, promise) ->
           doSomethingStub()
-          callback()
+          promise.resolve()
 
-      exampleContext.initialize ->
+      exampleContext.initialize()
+      .then ->
         exampleRemote = eventric.remote 'Example'
         exampleRemote.addClient 'socketio', socketIORemoteClient
         exampleRemote.set 'default client', 'socketio'
@@ -71,7 +72,9 @@ describe 'SocketIO Remote', ->
     it 'then we should be able to subscribe handlers to domain events with specific aggregate ids', (done) ->
       exampleRemote.command 'CreateSomething'
       .then (id) ->
+
         exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified', id, ->
           done()
-        exampleRemote.command 'ModifySomething',
-          id: id
+
+        .then ->
+          exampleRemote.command 'ModifySomething', id: id
