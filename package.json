@@ -36,6 +36,7 @@
     "sinon-chai": "*",
     "socket.io-client": "*",
     "eventric": "*",
+    "eventric-testing": "*",
     "eventric-remote-socketio-client": "*"
   }
 }

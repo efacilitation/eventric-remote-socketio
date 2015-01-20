@@ -5,7 +5,7 @@ eventric  = require 'eventric'
 sinonChai = require 'sinon-chai'
 chai.use sinonChai
 
-describe 'SocketIO Remote', ->
+describe 'SocketIO Remote Feature', ->
   socketIORemoteEndpoint = null
   socketIORemoteClient = null
   socketServer = null
@@ -22,7 +22,8 @@ describe 'SocketIO Remote', ->
       socketClient = require('socket.io-client')('http://localhost:3000')
       socketClient.on 'connect', ->
         socketIORemoteClient = require 'eventric-remote-socketio-client'
-        socketIORemoteClient.initialize ioClientInstance: socketClient, ->
+        socketIORemoteClient.initialize ioClientInstance: socketClient
+        .then ->
           done()
 
 

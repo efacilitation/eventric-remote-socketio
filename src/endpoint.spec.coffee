@@ -1,8 +1,9 @@
 chai   = require 'chai'
 expect = chai.expect
 sinon  = require 'sinon'
+eventricTesting = require 'eventric-testing'
 
-describe 'endpoint', ->
+describe 'SocketIO Remote', ->
   sandbox = null
   endpoint = null
   ioStub = null
@@ -67,28 +68,41 @@ describe 'endpoint', ->
 
 
     it 'should execute the configured handler upon an incoming RPC_Request', ->
-      rpcHandlerStub = sandbox.spy()
+      rpcHandlerStub = sandbox.stub().returns eventricTesting.resolve()
       endpoint.setRPCHandler rpcHandlerStub
 
       rpcRequestStub =
         rpcId: 123
-      # withArgs
+
       socketStub.on.firstCall.args[1] rpcRequestStub
 
-      expect(rpcHandlerStub.calledWith rpcRequestStub, sinon.match.func).to.be.ok
+      expect(rpcHandlerStub.calledWith rpcRequestStub).to.be.ok
 
 
-    it 'should emit the return value of the configured handler as RPC_Response', ->
+    it 'should emit the response value of the configured handler as RPC_Response', ->
       rpcRequestStub =
         rpcId: 123
-      responseStub = {}
+      responseStub = foo: 'bar'
 
-      rpcHandlerStub = sandbox.stub().yields null, responseStub
+      rpcHandlerStub = sandbox.stub().returns eventricTesting.resolve responseStub
       endpoint.setRPCHandler rpcHandlerStub
 
       socketStub.on.firstCall.args[1] rpcRequestStub
 
-      expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestStub.rpcId, err: null, data: responseStub).to.be.ok
+      expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestStub.rpcId, data: responseStub).to.be.ok
+
+
+    it 'should emit the error value of the configured handler as RPC_Response', ->
+      rpcRequestStub =
+        rpcId: 123
+      responseStub = foo: 'bar'
+
+      rpcHandlerStub = sandbox.stub().returns eventricTesting.reject responseStub
+      endpoint.setRPCHandler rpcHandlerStub
+
+      socketStub.on.firstCall.args[1] rpcRequestStub
+
+      expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestStub.rpcId, err: responseStub).to.be.ok
 
 
   describe '#publish', ->
