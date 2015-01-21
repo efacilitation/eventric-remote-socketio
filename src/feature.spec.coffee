@@ -63,7 +63,8 @@ describe 'SocketIO Remote Feature', ->
 
 
     it 'then we should be able to subscribe handlers to domain events', (done) ->
-      exampleRemote.subscribeToDomainEvent 'SomethingCreated'
+      subscriberFn = ->
+      exampleRemote.subscribeToDomainEvent 'SomethingCreated', subscriberFn
       .then (subscriberId) ->
         exampleRemote.unsubscribeFromDomainEvent subscriberId
         done()
