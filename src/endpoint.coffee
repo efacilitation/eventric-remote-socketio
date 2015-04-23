@@ -8,7 +8,6 @@ class SocketIORemoteEndpoint
       @_io.listen 3000
 
     @_io.sockets.on 'connection', (socket) =>
-
       socket.on 'RPC_Request', (RPC_Request) =>
         rpcId = RPC_Request.rpcId
         @_handleRPCRequest RPC_Request
@@ -23,29 +22,13 @@ class SocketIORemoteEndpoint
             rpcId: rpcId
             err: err
 
-      socket.on 'RPS_Request', (RPS_Request) =>
-        rpsId = RPS_Request.rpsId
-        # its a subscriber request, we need to push a proxy
-        # subscriber function to the params
-        subscriberProxyFn = ->
-          # RPS_Publish
-          socket.emit 'RPS_Publish',
-            subscriberId: RPS_Request.subscriberId
-            payload: Array.prototype.slice.call arguments
 
-        RPS_Request.params.push subscriberProxyFn
+      socket.on 'JoinRoom', (roomName) ->
+        socket.join roomName
 
-        @_handleRPCRequest RPS_Request
-        .then (response) ->
-          socket.emit 'RPS_Response',
-            rpsId: rpsId
-            data: response
 
-        .catch (err) ->
-          # TODO: consider renaming to RPS_Error
-          socket.emit 'RPS_Response',
-            rpsId: rpsId
-            err: err
+      socket.on 'LeaveRoom', (roomName) ->
+        socket.leave roomName
 
 
     callback()
@@ -57,6 +40,19 @@ class SocketIORemoteEndpoint
 
   setRPCHandler: (@_handleRPCRequest) ->
 
+
+  publish: (context, [domainEventName, aggregateId]..., payload) ->
+    fullEventName = @_getFullEventName context, domainEventName, aggregateId
+    @_io.to(fullEventName).emit fullEventName, payload
+
+
+  _getFullEventName: (context, domainEventName, aggregateId) ->
+    fullEventName = context
+    if domainEventName
+      fullEventName += "/#{domainEventName}"
+    if aggregateId
+      fullEventName += "/#{aggregateId}"
+    fullEventName
 
 
 module.exports = new SocketIORemoteEndpoint
