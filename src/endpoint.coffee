@@ -9,18 +9,12 @@ class SocketIORemoteEndpoint
 
     @_io.sockets.on 'connection', (socket) =>
       socket.on 'RPC_Request', (RPC_Request) =>
-        rpcId = RPC_Request.rpcId
-        @_handleRPCRequest RPC_Request
-        .then (response) ->
-          socket.emit 'RPC_Response',
-            rpcId: rpcId
-            data: response
-
-        .catch (err) ->
-          # TODO: consider renaming to RPC_Error
+        @_handleRPCRequest RPC_Request, (err, response) =>
+          rpcId = RPC_Request.rpcId
           socket.emit 'RPC_Response',
             rpcId: rpcId
             err: err
+            data: response
 
 
       socket.on 'JoinRoom', (roomName) ->

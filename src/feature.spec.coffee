@@ -5,7 +5,7 @@ eventric  = require 'eventric'
 sinonChai = require 'sinon-chai'
 chai.use sinonChai
 
-describe 'SocketIO Remote Feature', ->
+describe 'SocketIO Remote', ->
   socketIORemoteEndpoint = null
   socketIORemoteClient = null
   socketServer = null
@@ -22,8 +22,7 @@ describe 'SocketIO Remote Feature', ->
       socketClient = require('socket.io-client')('http://localhost:3000')
       socketClient.on 'connect', ->
         socketIORemoteClient = require 'eventric-remote-socketio-client'
-        socketIORemoteClient.initialize ioClientInstance: socketClient
-        .then ->
+        socketIORemoteClient.initialize ioClientInstance: socketClient, ->
           done()
 
 
@@ -43,12 +42,11 @@ describe 'SocketIO Remote Feature', ->
 
       doSomethingStub = sinon.stub()
       exampleContext.addCommandHandlers
-        DoSomething: (params, promise) ->
+        DoSomething: (params, callback) ->
           doSomethingStub()
-          promise.resolve()
+          callback()
 
-      exampleContext.initialize()
-      .then ->
+      exampleContext.initialize ->
         exampleRemote = eventric.remote 'Example'
         exampleRemote.addClient 'socketio', socketIORemoteClient
         exampleRemote.set 'default client', 'socketio'
@@ -73,9 +71,7 @@ describe 'SocketIO Remote Feature', ->
     it 'then we should be able to subscribe handlers to domain events with specific aggregate ids', (done) ->
       exampleRemote.command 'CreateSomething'
       .then (id) ->
-
         exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified', id, ->
           done()
-
-        .then ->
-          exampleRemote.command 'ModifySomething', id: id
+        exampleRemote.command 'ModifySomething',
+          id: id
