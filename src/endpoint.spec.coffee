@@ -2,7 +2,7 @@ chai   = require 'chai'
 expect = chai.expect
 sinon  = require 'sinon'
 
-describe 'endpoint', ->
+describe.only 'endpoint', ->
   sandbox = null
   endpoint = null
   ioStub = null
@@ -29,7 +29,7 @@ describe 'endpoint', ->
       expect(ioStub.sockets.on.calledWith 'connection', sinon.match.func).to.be.ok
 
 
-  describe 'Socket Events', ->
+  describe 'receiving a JoinRoom event', ->
     socketStub = null
 
     beforeEach ->
@@ -40,55 +40,90 @@ describe 'endpoint', ->
       ioStub.sockets.on.withArgs('connection').yields socketStub
 
 
-    it 'on JoinRoom it should join the room', ->
+    it 'should join the room', ->
       socketStub.on.withArgs('JoinRoom').yields 'RoomName'
       endpoint.initialize
         ioInstance: ioStub
       expect(socketStub.join.calledWith 'RoomName').to.be.ok
 
 
-    it 'on LeaveRoom should leave the room', ->
+  describe 'receiving a LeaveRoom event', ->
+
+    socketStub = null
+
+    beforeEach ->
+      socketStub =
+        on: sandbox.stub()
+        join: sandbox.stub()
+        leave: sandbox.stub()
+      ioStub.sockets.on.withArgs('connection').yields socketStub
+
+
+    it 'should leave the room', ->
       socketStub.on.withArgs('LeaveRoom').yields 'RoomName'
       endpoint.initialize
         ioInstance: ioStub
       expect(socketStub.leave.calledWith 'RoomName').to.be.ok
 
 
-  describe '#setRPCHandler', ->
+  describe 'receiving a RPC_Request event', ->
     socketStub = null
+    rpcRequestFake = null
+    rpcHandlerStub = null
 
     beforeEach ->
+      rpcRequestFake =
+        rpcId: 123
       socketStub =
         on: sandbox.stub()
         emit: sandbox.stub()
+      rpcHandlerStub = sandbox.stub()
       ioStub.sockets.on.withArgs('connection').yields socketStub
-      endpoint.initialize
-        ioInstance: ioStub
 
 
-    it 'should execute the configured handler upon an incoming RPC_Request', ->
-      rpcHandlerStub = sandbox.spy()
-      endpoint.setRPCHandler rpcHandlerStub
+    describe 'always', ->
 
-      rpcRequestStub =
-        rpcId: 123
-      # withArgs
-      socketStub.on.firstCall.args[1] rpcRequestStub
-
-      expect(rpcHandlerStub.calledWith rpcRequestStub, sinon.match.func).to.be.ok
+      beforeEach ->
+        endpoint.initialize
+          ioInstance: ioStub
 
 
-    it 'should emit the return value of the configured handler as RPC_Response', ->
-      rpcRequestStub =
-        rpcId: 123
-      responseStub = {}
+      it 'should execute the configured rpc handler', ->
+        endpoint.setRPCHandler rpcHandlerStub
+        socketStub.on.firstCall.args[1] rpcRequestFake
+        expect(rpcHandlerStub.calledWith rpcRequestFake, sinon.match.func).to.be.ok
 
-      rpcHandlerStub = sandbox.stub().yields null, responseStub
-      endpoint.setRPCHandler rpcHandlerStub
 
-      socketStub.on.firstCall.args[1] rpcRequestStub
+      it 'should emit the return value of the configured handler as RPC_Response', ->
+        responseFake = {}
+        rpcHandlerStub.yields null, responseFake
+        endpoint.setRPCHandler rpcHandlerStub
+        socketStub.on.firstCall.args[1] rpcRequestFake
+        expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
 
-      expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestStub.rpcId, err: null, data: responseStub).to.be.ok
+
+    describe 'given a rpc request middleware', ->
+
+      rpcRequestMiddlewareStub = null
+
+      beforeEach ->
+        rpcRequestMiddlewareStub = sandbox.stub()
+        endpoint.initialize
+          ioInstance: ioStub
+          rpcRequestMiddleware: rpcRequestMiddlewareStub
+
+
+      it 'should pass in the rpc request data, the assiocated socket and a done callback', ->
+        socketStub.on.firstCall.args[1] rpcRequestFake
+        expect(rpcRequestMiddlewareStub).to.have.been.called
+        expect(rpcRequestMiddlewareStub.firstCall.args[0]).to.equal rpcRequestFake
+        expect(rpcRequestMiddlewareStub.firstCall.args[1]).to.equal socketStub
+
+
+      it 'should execute the configured rpc handler when the middleware is finished', ->
+        rpcRequestMiddlewareStub.yields()
+        socketStub.on.firstCall.args[1] rpcRequestFake
+        expect(rpcHandlerStub).to.have.been.called
 
 
   describe '#publish', ->

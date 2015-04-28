@@ -4,17 +4,28 @@ class SocketIORemoteEndpoint
     if options.ioInstance
       @_io = options.ioInstance
     else
+      # TODO: Consider testing
       @_io = require('socket.io')()
       @_io.listen 3000
 
+    if options.rpcRequestMiddleware
+      @_rpcRequestMiddleware = options.rpcRequestMiddleware
+    else
+      @_rpcRequestMiddleware = (request, socket, callback) ->
+        callback()
+
     @_io.sockets.on 'connection', (socket) =>
-      socket.on 'RPC_Request', (RPC_Request) =>
-        @_handleRPCRequest RPC_Request, (err, response) =>
-          rpcId = RPC_Request.rpcId
+      socket.on 'RPC_Request', (rpcRequest) =>
+
+        emitRpcResponse = (error, response) =>
+          rpcId = rpcRequest.rpcId
           socket.emit 'RPC_Response',
             rpcId: rpcId
-            err: err
+            err: error
             data: response
+
+        @_rpcRequestMiddleware rpcRequest, socket, =>
+          @_handleRPCRequest rpcRequest, emitRpcResponse
 
 
       socket.on 'JoinRoom', (roomName) ->
