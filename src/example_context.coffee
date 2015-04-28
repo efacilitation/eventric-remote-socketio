@@ -20,15 +20,13 @@ example.addCommandHandlers
     @$aggregate.create 'Something'
     .then (aggregate) ->
       aggregate.$save()
-    .catch (error) ->
-      callback error
+
 
   ModifySomething: (params) ->
     @$aggregate.load 'Something', params.id
     .then (aggregate) ->
       aggregate.modify()
       aggregate.$save()
-    .catch (error) ->
-      callback.reject error
+
 
 module.exports = example
