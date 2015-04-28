@@ -5,7 +5,7 @@ eventric  = require 'eventric'
 sinonChai = require 'sinon-chai'
 chai.use sinonChai
 
-describe 'SocketIO Remote', ->
+describe 'SocketIO remote scenario', ->
   socketIORemoteEndpoint = null
   socketIORemoteClient = null
   socketServer = null
@@ -31,7 +31,7 @@ describe 'SocketIO Remote', ->
     require._cache = {}
 
 
-  describe 'given we created an example context and added a socketio remote endpoint', ->
+  describe 'creating an example context and adding a socketio remote endpoint', ->
     exampleRemote = null
     socketIORemoteClient = null
     doSomethingStub = null
@@ -57,14 +57,14 @@ describe 'SocketIO Remote', ->
         done()
 
 
-    it 'then we should be able to receive and execute commands', (done) ->
+    it 'should be possible to receive and execute commands', (done) ->
       exampleRemote.command 'DoSomething'
       .then ->
         expect(doSomethingStub).to.have.been.calledOnce
         done()
 
 
-    it 'then we should be able to subscribe handlers to domain events', (done) ->
+    it 'should be possible to subscribe handlers to domain events', (done) ->
       exampleRemote.subscribeToDomainEvent 'SomethingCreated'
       .then (aggregateId) ->
         createSomethingStub()
@@ -75,7 +75,7 @@ describe 'SocketIO Remote', ->
         done()
 
 
-    it 'then we should be able to subscribe handlers to domain events with specific aggregate ids', (done) ->
+    it 'should be possible to subscribe handlers to domain events with specific aggregate ids', (done) ->
       exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified'
       .then (aggregateId) ->
         modifySomethingStub()
