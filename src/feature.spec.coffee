@@ -11,8 +11,6 @@ describe 'SocketIO Remote', ->
   socketServer = null
   socketClient = null
 
-  doSomethingStub = null
-
   before (done) ->
     socketServer = require('socket.io')()
     socketServer.listen 3000
@@ -22,7 +20,8 @@ describe 'SocketIO Remote', ->
       socketClient = require('socket.io-client')('http://localhost:3000')
       socketClient.on 'connect', ->
         socketIORemoteClient = require 'eventric-remote-socketio-client'
-        socketIORemoteClient.initialize ioClientInstance: socketClient, ->
+        socketIORemoteClient.initialize ioClientInstance: socketClient
+        .then ->
           done()
 
 
@@ -35,18 +34,23 @@ describe 'SocketIO Remote', ->
   describe 'given we created an example context and added a socketio remote endpoint', ->
     exampleRemote = null
     socketIORemoteClient = null
+    doSomethingStub = null
+    createSomethingStub = null
+    modifySomethingStub = null
 
     beforeEach (done) ->
-
       exampleContext = require './example_context'
-
       doSomethingStub = sinon.stub()
+      createSomethingStub = sinon.stub()
+      modifySomethingStub = sinon.stub()
+
       exampleContext.addCommandHandlers
         DoSomething: (params, callback) ->
           doSomethingStub()
-          callback()
+          callback.resolve()
 
-      exampleContext.initialize ->
+      exampleContext.initialize()
+      .then ->
         exampleRemote = eventric.remote 'Example'
         exampleRemote.addClient 'socketio', socketIORemoteClient
         exampleRemote.set 'default client', 'socketio'
@@ -62,16 +66,23 @@ describe 'SocketIO Remote', ->
 
     it 'then we should be able to subscribe handlers to domain events', (done) ->
       exampleRemote.subscribeToDomainEvent 'SomethingCreated'
-      .then (subscriberId) ->
-        exampleRemote.unsubscribeFromDomainEvent subscriberId
-        done()
+      .then (aggregateId) ->
+        createSomethingStub()
+        exampleRemote.unsubscribeFromDomainEvent aggregateId
       exampleRemote.command 'CreateSomething'
+      .then ->
+        expect(createSomethingStub).to.have.been.calledOnce
+        done()
 
 
     it 'then we should be able to subscribe handlers to domain events with specific aggregate ids', (done) ->
+      exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified'
+      .then (aggregateId) ->
+        modifySomethingStub()
+        exampleRemote.unsubscribeFromDomainEvent aggregateId
       exampleRemote.command 'CreateSomething'
-      .then (id) ->
-        exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified', id, ->
+      .then (aggregateId) ->
+        exampleRemote.command 'ModifySomething', id: aggregateId
+        .then ->
+          expect(modifySomethingStub).to.have.been.calledOnce
           done()
-        exampleRemote.command 'ModifySomething',
-          id: id
