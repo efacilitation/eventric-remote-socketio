@@ -45,9 +45,7 @@ describe 'SocketIO remote scenario', ->
       modifySomethingStub = sinon.stub()
 
       exampleContext.addCommandHandlers
-        DoSomething: (params, callback) ->
-          doSomethingStub()
-          callback.resolve()
+        DoSomething: doSomethingStub
 
       exampleContext.initialize()
       .then ->
@@ -58,10 +56,12 @@ describe 'SocketIO remote scenario', ->
 
 
     it 'should be possible to receive and execute commands', (done) ->
-      exampleRemote.command 'DoSomething'
-      .then ->
-        expect(doSomethingStub).to.have.been.calledOnce
-        done()
+      exampleRemote.command 'CreateSomething'
+      .then (aggregateId) ->
+        exampleRemote.command 'DoSomething', aggregateId: aggregateId
+        .then ->
+          expect(doSomethingStub).to.have.been.calledOnce
+          done()
 
 
     it 'should be possible to subscribe handlers to domain events', (done) ->

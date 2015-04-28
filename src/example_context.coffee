@@ -3,13 +3,11 @@ eventric = require 'eventric'
 example = eventric.context 'Example'
 
 class Something
-  create: (params, callback) ->
+  create: ->
     @$emitDomainEvent 'SomethingCreated', {}
-    callback.resolve()
 
-  modify: (params, callback) ->
+  modify: ->
     @$emitDomainEvent 'SomethingModified', {}
-    callback.resolve()
 
 
 example.addAggregate 'Something', Something
@@ -18,22 +16,18 @@ example.defineDomainEvent 'SomethingCreated', ->
 example.defineDomainEvent 'SomethingModified', ->
 
 example.addCommandHandlers
-  CreateSomething: (params, callback) ->
+  CreateSomething: ->
     @$aggregate.create 'Something'
     .then (aggregate) ->
       aggregate.$save()
-    .then (aggregateId) ->
-      callback.resolve aggregateId
     .catch (error) ->
-      callback.reject error
+      callback error
 
-  ModifySomething: (params, callback) ->
+  ModifySomething: (params) ->
     @$aggregate.load 'Something', params.id
     .then (aggregate) ->
-      aggregate.modify null, callback
+      aggregate.modify()
       aggregate.$save()
-    .then (aggregateId) ->
-      callback.resolve aggregateId
     .catch (error) ->
       callback.reject error
 
