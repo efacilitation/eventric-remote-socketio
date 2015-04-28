@@ -111,6 +111,7 @@ describe.only 'endpoint', ->
         endpoint.initialize
           ioInstance: ioStub
           rpcRequestMiddleware: rpcRequestMiddlewareStub
+        endpoint.setRPCHandler rpcHandlerStub
 
 
       it 'should pass in the rpc request data, the assiocated socket and a done callback', ->
