@@ -1,6 +1,29 @@
 class SocketIORemoteEndpoint
 
   initialize: (options = {}, callback = ->) ->
+    @_processOptions options
+
+    @_io.sockets.on 'connection', (socket) =>
+      socket.on 'RPC_Request', (rpcRequest) =>
+        @_handleRpcRequestEvent rpcRequest, socket
+
+      socket.on 'JoinRoom', (roomName) =>
+        @_rpcRequestMiddleware roomName, socket
+        .then =>
+          socket.join roomName
+        .catch (error) ->
+          # TODO: Error handling?
+
+      socket.on 'LeaveRoom', (roomName) ->
+        socket.leave roomName
+
+    callback()
+
+
+  setRPCHandler: (@_handleRPCRequest) ->
+
+
+  _processOptions: (options) ->
     if options.ioInstance
       @_io = options.ioInstance
     else
@@ -11,39 +34,25 @@ class SocketIORemoteEndpoint
     if options.rpcRequestMiddleware
       @_rpcRequestMiddleware = options.rpcRequestMiddleware
     else
-      @_rpcRequestMiddleware = (request, socket, callback) ->
-        callback()
-
-    @_io.sockets.on 'connection', (socket) =>
-      socket.on 'RPC_Request', (rpcRequest) =>
-
-        emitRpcResponse = (error, response) =>
-          rpcId = rpcRequest.rpcId
-          socket.emit 'RPC_Response',
-            rpcId: rpcId
-            err: error
-            data: response
-
-        @_rpcRequestMiddleware rpcRequest, socket, =>
-          @_handleRPCRequest rpcRequest, emitRpcResponse
+      @_rpcRequestMiddleware = ->
+        then: (callback) ->
+          callback()
+          catch: ->
 
 
-      socket.on 'JoinRoom', (roomName) ->
-        socket.join roomName
+  _handleRpcRequestEvent: (rpcRequest, socket) ->
+    emitRpcResponse = (error, response) =>
+      rpcId = rpcRequest.rpcId
+      socket.emit 'RPC_Response',
+        rpcId: rpcId
+        err: error
+        data: response
 
-
-      socket.on 'LeaveRoom', (roomName) ->
-        socket.leave roomName
-
-
-    callback()
-
-
-  close: ->
-    @_io.close()
-
-
-  setRPCHandler: (@_handleRPCRequest) ->
+    @_rpcRequestMiddleware rpcRequest, socket
+    .then =>
+      @_handleRPCRequest rpcRequest, emitRpcResponse
+    .catch (error) ->
+      emitRpcResponse error, null
 
 
   publish: (context, [domainEventName, aggregateId]..., payload) ->
@@ -58,6 +67,10 @@ class SocketIORemoteEndpoint
     if aggregateId
       fullEventName += "/#{aggregateId}"
     fullEventName
+
+
+  close: ->
+    @_io.close()
 
 
 module.exports = new SocketIORemoteEndpoint
