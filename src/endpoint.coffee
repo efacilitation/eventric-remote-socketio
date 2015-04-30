@@ -7,6 +7,7 @@ class SocketIORemoteEndpoint
       socket.on 'RPC_Request', (rpcRequest) =>
         @_handleRpcRequestEvent rpcRequest, socket
 
+      # TODO: Remove JoinRoom event listener as soon as stream subscriptions are implenented correctly
       socket.on 'JoinRoom', (roomName) =>
         @_rpcRequestMiddleware roomName, socket
         .then =>
@@ -14,6 +15,7 @@ class SocketIORemoteEndpoint
         .catch (error) ->
           # TODO: Error handling?
 
+      # TODO: Remove LeaveRoom event listener as soon as stream subscriptions are implenented correctly
       socket.on 'LeaveRoom', (roomName) ->
         socket.leave roomName
 
