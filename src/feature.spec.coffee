@@ -16,13 +16,13 @@ describe 'SocketIO remote scenario', ->
     socketServer.listen 3000
     socketIORemoteEndpoint = require './endpoint'
     socketIORemoteEndpoint.initialize ioInstance: socketServer, ->
-      eventric.addRemoteEndpoint 'socketio', socketIORemoteEndpoint
+      eventric.addRemoteEndpoint socketIORemoteEndpoint
       socketClient = require('socket.io-client')('http://localhost:3000')
       socketClient.on 'connect', ->
         socketIORemoteClient = require 'eventric-remote-socketio-client'
         socketIORemoteClient.initialize ioClientInstance: socketClient
-        .then ->
-          done()
+        .then done
+        .catch done
 
 
   after ->
@@ -38,7 +38,7 @@ describe 'SocketIO remote scenario', ->
     createSomethingStub = null
     modifySomethingStub = null
 
-    beforeEach (done) ->
+    beforeEach ->
       exampleContext = require './example_context'
       doSomethingStub = sinon.stub()
       createSomethingStub = sinon.stub()
@@ -50,9 +50,7 @@ describe 'SocketIO remote scenario', ->
       exampleContext.initialize()
       .then ->
         exampleRemote = eventric.remote 'Example'
-        exampleRemote.addClient 'socketio', socketIORemoteClient
-        exampleRemote.set 'default client', 'socketio'
-        done()
+        exampleRemote.setClient socketIORemoteClient
 
 
     it 'should be possible to receive and execute commands', (done) ->

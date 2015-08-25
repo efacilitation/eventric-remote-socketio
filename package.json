@@ -7,7 +7,7 @@
     "eventric-remote",
     "socketio"
   ],
-  "author": "eFa Team <team@efa-gmbh.com>",
+  "author": "efa Team <team@efa-gmbh.com>",
   "version": "0.5.0",
   "repository": {
     "type": "git",
@@ -26,10 +26,9 @@
     "coffee-script": "1.9.2",
     "del": "1.1.1",
     "es6-promise": "2.1.1",
-    "eventric": "0.4.1",
-    "eventric-remote-socketio-client": "0.1.6",
+    "eventric": "0.20.1",
+    "eventric-remote-socketio-client": "0.4.0",
     "gulp": "3.8.11",
-    "gulp-bump": "0.3.0",
     "gulp-coffee": "2.3.1",
     "gulp-mocha": "2.0.1",
     "gulp-util": "3.0.4",
