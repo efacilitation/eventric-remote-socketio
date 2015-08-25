@@ -4,11 +4,11 @@ class SocketIORemoteEndpoint
     @_processOptions options
 
     @_io.sockets.on 'connection', (socket) =>
-      socket.on 'RPC_Request', (rpcRequest) =>
+      socket.on 'eventric:rpcRequest', (rpcRequest) =>
         @_handleRpcRequestEvent rpcRequest, socket
 
       # TODO: Remove JoinRoom event listener as soon as stream subscriptions are implenented correctly
-      socket.on 'JoinRoom', (roomName) =>
+      socket.on 'eventric:joinRoom', (roomName) =>
         @_rpcRequestMiddleware roomName, socket
         .then =>
           socket.join roomName
@@ -16,7 +16,7 @@ class SocketIORemoteEndpoint
           # TODO: Error handling?
 
       # TODO: Remove LeaveRoom event listener as soon as stream subscriptions are implenented correctly
-      socket.on 'LeaveRoom', (roomName) ->
+      socket.on 'eventric:leaveRoom', (roomName) ->
         socket.leave roomName
 
     callback()
@@ -45,7 +45,7 @@ class SocketIORemoteEndpoint
   _handleRpcRequestEvent: (rpcRequest, socket) ->
     emitRpcResponse = (error, response) =>
       rpcId = rpcRequest.rpcId
-      socket.emit 'RPC_Response',
+      socket.emit 'eventric:rpcResponse',
         rpcId: rpcId
         err: error
         data: response

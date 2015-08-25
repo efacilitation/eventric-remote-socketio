@@ -31,7 +31,7 @@ describe 'endpoint', ->
       expect(ioStub.sockets.on.calledWith 'connection', sinon.match.func).to.be.ok
 
 
-  describe 'receiving a JoinRoom socket event', ->
+  describe 'receiving a eventric:joinRoom socket event', ->
     socketStub = null
 
     beforeEach ->
@@ -40,7 +40,7 @@ describe 'endpoint', ->
         join: sandbox.stub()
         leave: sandbox.stub()
       ioStub.sockets.on.withArgs('connection').yields socketStub
-      socketStub.on.withArgs('JoinRoom').yields 'RoomName'
+      socketStub.on.withArgs('eventric:joinRoom').yields 'RoomName'
 
 
     describe 'given no rpc request middleware', ->
@@ -98,7 +98,7 @@ describe 'endpoint', ->
 
 
 
-  describe 'receiving a LeaveRoom socket event', ->
+  describe 'receiving a eventric:leaveRoom socket event', ->
 
     socketStub = null
 
@@ -111,13 +111,13 @@ describe 'endpoint', ->
 
 
     it 'should leave the room', ->
-      socketStub.on.withArgs('LeaveRoom').yields 'RoomName'
+      socketStub.on.withArgs('eventric:leaveRoom').yields 'RoomName'
       endpoint.initialize
         ioInstance: ioStub
       expect(socketStub.leave.calledWith 'RoomName').to.be.ok
 
 
-  describe 'receiving a RPC_Request event', ->
+  describe 'receiving a eventric:rpcRequest event', ->
     socketStub = null
     rpcRequestFake = null
     rpcHandlerStub = null
@@ -130,7 +130,7 @@ describe 'endpoint', ->
         emit: sandbox.stub()
       rpcHandlerStub = sandbox.stub()
       ioStub.sockets.on.withArgs('connection').yields socketStub
-      socketStub.on.withArgs('RPC_Request').yields rpcRequestFake
+      socketStub.on.withArgs('eventric:rpcRequest').yields rpcRequestFake
       endpoint.setRPCHandler rpcHandlerStub
 
 
@@ -142,12 +142,12 @@ describe 'endpoint', ->
         expect(rpcHandlerStub.calledWith rpcRequestFake, sinon.match.func).to.be.ok
 
 
-      it 'should emit the return value of the configured handler as RPC_Response', ->
+      it 'should emit the return value of the configured handler as eventric:rpcResponse', ->
         responseFake = {}
         rpcHandlerStub.yields null, responseFake
         endpoint.initialize
           ioInstance: ioStub
-        expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
+        expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
 
 
     describe 'given a rpc request middleware', ->
@@ -192,8 +192,8 @@ describe 'endpoint', ->
           expect(rpcHandlerStub.calledWith rpcRequestFake, sinon.match.func).to.be.ok
 
 
-        it 'should emit the return value of the configured handler as RPC_Response', ->
-          expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
+        it 'should emit the return value of the configured handler as eventric:rpcResponse', ->
+          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
 
 
       describe 'which rejects', ->
@@ -217,8 +217,8 @@ describe 'endpoint', ->
           expect(rpcHandlerStub.calledWith rpcRequestFake, sinon.match.func).to.be.false
 
 
-        it 'should emit a RPC_Response event with an error', ->
-          expect(socketStub.emit.calledWith 'RPC_Response', rpcId: rpcRequestFake.rpcId, err: errorFake, data: null).to.be.ok
+        it 'should emit a eventric:rpcResponse event with an error', ->
+          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, err: errorFake, data: null).to.be.ok
 
 
 
