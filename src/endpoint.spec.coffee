@@ -147,7 +147,9 @@ describe 'endpoint', ->
         rpcHandlerStub.yields null, responseFake
         endpoint.initialize
           ioInstance: ioStub
-        expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
+        expect(
+          socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, error: null, data: responseFake
+        ).to.be.ok
 
 
     describe 'given a rpc request middleware', ->
@@ -193,7 +195,7 @@ describe 'endpoint', ->
 
 
         it 'should emit the return value of the configured handler as eventric:rpcResponse', ->
-          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, err: null, data: responseFake).to.be.ok
+          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, error: null, data: responseFake).to.be.ok
 
 
       describe 'which rejects', ->
@@ -218,7 +220,7 @@ describe 'endpoint', ->
 
 
         it 'should emit a eventric:rpcResponse event with an error', ->
-          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, err: errorFake, data: null).to.be.ok
+          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, error: errorFake, data: null).to.be.ok
 
 
 
@@ -235,6 +237,7 @@ describe 'endpoint', ->
       ioStub.to = sandbox.stub().returns channelStub
 
     describe 'given only a context name', ->
+
       it 'should emit an event with payload to the correct channel', ->
         payload = {}
         endpoint.publish 'context', payload
@@ -244,6 +247,7 @@ describe 'endpoint', ->
 
 
     describe 'given a context name and event name', ->
+
       it 'should emit an event with payload to the correct channel', ->
         payload = {}
         endpoint.publish 'context', 'EventName', payload
@@ -253,6 +257,7 @@ describe 'endpoint', ->
 
 
     describe 'given a context name, event name and aggregate id', ->
+
       it 'should emit an event with payload to the correct channel', ->
         payload = {}
         endpoint.publish 'context', 'EventName', '12345', payload

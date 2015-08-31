@@ -27,7 +27,7 @@
     "del": "1.1.1",
     "es6-promise": "2.1.1",
     "eventric": "0.20.0",
-    "eventric-remote-socketio-client": "0.4.0",
+    "eventric-remote-socketio-client": "0.5.0",
     "gulp": "3.8.11",
     "gulp-coffee": "2.3.1",
     "gulp-mocha": "2.0.1",

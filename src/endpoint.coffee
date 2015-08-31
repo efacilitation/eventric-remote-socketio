@@ -10,7 +10,7 @@ class SocketIORemoteEndpoint
       # TODO: Remove JoinRoom event listener as soon as stream subscriptions are implenented correctly
       socket.on 'eventric:joinRoom', (roomName) =>
         @_rpcRequestMiddleware roomName, socket
-        .then =>
+        .then ->
           socket.join roomName
         .catch (error) ->
           # TODO: Error handling?
@@ -43,11 +43,14 @@ class SocketIORemoteEndpoint
 
 
   _handleRpcRequestEvent: (rpcRequest, socket) ->
-    emitRpcResponse = (error, response) =>
+    emitRpcResponse = (error, response) ->
+      if error? and error.message and error.name
+        error = message: error.message, name: error.name
+
       rpcId = rpcRequest.rpcId
       socket.emit 'eventric:rpcResponse',
         rpcId: rpcId
-        err: error
+        error: error
         data: response
 
     @_rpcRequestMiddleware rpcRequest, socket

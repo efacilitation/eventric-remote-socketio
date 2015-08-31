@@ -45,12 +45,23 @@ describe 'SocketIO remote scenario', ->
       modifySomethingStub = sinon.stub()
 
       exampleContext.addCommandHandlers
+        CommandWhichRejects: ->
+          throw new Error 'The error message'
         DoSomething: doSomethingStub
 
       exampleContext.initialize()
       .then ->
         exampleRemote = eventric.remote 'Example'
         exampleRemote.setClient socketIORemoteClient
+
+
+    it 'should send error instances serialized with "name" and "message" properties', (done) ->
+      exampleRemote.command 'CommandWhichRejects'
+      .catch (error) ->
+        expect(error instanceof Error).to.be.true
+        expect(error.name).to.equal 'Error'
+        expect(error.message).to.contain 'The error message'
+        done()
 
 
     it 'should be possible to receive and execute commands', (done) ->
