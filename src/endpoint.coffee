@@ -43,9 +43,9 @@ class SocketIORemoteEndpoint
 
 
   _handleRpcRequestEvent: (rpcRequest, socket) ->
-    emitRpcResponse = (error, response) ->
-      if error? and error.message and error.name
-        error = message: error.message, name: error.name
+    emitRpcResponse = (error, response) =>
+      if error
+        error = @_convertErrorInstanceToSerializableObject error
 
       rpcId = rpcRequest.rpcId
       socket.emit 'eventric:rpcResponse',
@@ -58,6 +58,13 @@ class SocketIORemoteEndpoint
       @_handleRPCRequest rpcRequest, emitRpcResponse
     .catch (error) ->
       emitRpcResponse error, null
+
+
+  _convertErrorInstanceToSerializableObject: (error) ->
+    if error instanceof Error and error.message and error.name
+      return message: error.message, name: error.name
+
+    return error
 
 
   publish: (context, [domainEventName, aggregateId]..., payload) ->

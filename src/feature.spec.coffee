@@ -1,17 +1,13 @@
-chai      = require 'chai'
-expect    = chai.expect
-sinon     = require 'sinon'
-eventric  = require 'eventric'
-sinonChai = require 'sinon-chai'
-chai.use sinonChai
-
 describe 'SocketIO remote scenario', ->
+  eventric = null
   socketIORemoteEndpoint = null
   socketIORemoteClient = null
   socketServer = null
   socketClient = null
 
   before (done) ->
+    eventric = require 'eventric'
+
     socketServer = require('socket.io')()
     socketServer.listen 3000
     socketIORemoteEndpoint = require './endpoint'

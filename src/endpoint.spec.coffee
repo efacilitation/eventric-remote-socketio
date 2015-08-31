@@ -1,9 +1,3 @@
-require('es6-promise').polyfill()
-
-chai   = require 'chai'
-expect = chai.expect
-sinon  = require 'sinon'
-
 describe 'endpoint', ->
   sandbox = null
   endpoint = null
@@ -28,7 +22,7 @@ describe 'endpoint', ->
       endpoint.initialize
         ioInstance: ioStub
 
-      expect(ioStub.sockets.on.calledWith 'connection', sinon.match.func).to.be.ok
+      expect(ioStub.sockets.on).to.have.been.calledWith 'connection', sinon.match.func
 
 
   describe 'receiving an eventric:joinRoom socket event', ->
@@ -48,7 +42,7 @@ describe 'endpoint', ->
       it 'should join the room', ->
         endpoint.initialize
           ioInstance: ioStub
-        expect(socketStub.join.calledWith 'RoomName').to.be.ok
+        expect(socketStub.join).to.have.been.calledWith 'RoomName'
 
 
     describe 'given a rpc request middleware', ->
@@ -81,7 +75,7 @@ describe 'endpoint', ->
             ioInstance: ioStub
             rpcRequestMiddleware: rpcRequestMiddlewareStub
           setTimeout ->
-            expect(socketStub.join.calledWith 'RoomName').to.be.ok
+            expect(socketStub.join).to.have.been.calledWith 'RoomName'
             done()
 
 
@@ -214,19 +208,16 @@ describe 'endpoint', ->
 
 
         it 'should not execute the configured rpc handler', ->
-          expect(rpcHandlerStub.calledWith rpcRequestFake, sinon.match.func).to.be.false
+          expect(rpcHandlerStub).to.not.have.been.calledWith rpcRequestFake, sinon.match.func
 
 
-        it 'should emit a eventric:rpcResponse event with an error', ->
-          expect(
-            socketStub.emit.calledWith(
-              'eventric:rpcResponse', {
-                rpcId: rpcRequestFake.rpcId,
-                error: {message: 'The error message', name: 'Error'},
+        it 'should emit a eventric:rpcResponse event with a converted error object', ->
+          expect(socketStub.emit).to.have.been.calledWith(
+              'eventric:rpcResponse'
+                rpcId: rpcRequestFake.rpcId
+                error: message: 'The error message', name: 'Error'
                 data: null
-              }
             )
-          ).to.be.ok
 
 
   describe '#publish', ->
@@ -247,8 +238,8 @@ describe 'endpoint', ->
         payload = {}
         endpoint.publish 'context', payload
 
-        expect(ioStub.to.calledWith 'context').to.be.ok
-        expect(channelStub.emit.calledWith 'context', payload).to.be.ok
+        expect(ioStub.to).to.have.been.calledWith 'context'
+        expect(channelStub.emit).to.have.been.calledWith 'context', payload
 
 
     describe 'given a context name and event name', ->
@@ -257,8 +248,8 @@ describe 'endpoint', ->
         payload = {}
         endpoint.publish 'context', 'EventName', payload
 
-        expect(ioStub.to.calledWith 'context/EventName').to.be.ok
-        expect(channelStub.emit.calledWith 'context/EventName', payload).to.be.ok
+        expect(ioStub.to).to.have.been.calledWith 'context/EventName'
+        expect(channelStub.emit).to.have.been.calledWith 'context/EventName', payload
 
 
     describe 'given a context name, event name and aggregate id', ->
@@ -267,5 +258,5 @@ describe 'endpoint', ->
         payload = {}
         endpoint.publish 'context', 'EventName', '12345', payload
 
-        expect(ioStub.to.calledWith 'context/EventName/12345').to.be.ok
-        expect(channelStub.emit.calledWith 'context/EventName/12345', payload).to.be.ok
+        expect(ioStub.to).to.have.been.calledWith 'context/EventName/12345'
+        expect(channelStub.emit).to.have.been.calledWith 'context/EventName/12345', payload
