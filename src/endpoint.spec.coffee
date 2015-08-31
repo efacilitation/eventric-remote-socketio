@@ -31,7 +31,7 @@ describe 'endpoint', ->
       expect(ioStub.sockets.on.calledWith 'connection', sinon.match.func).to.be.ok
 
 
-  describe 'receiving a eventric:joinRoom socket event', ->
+  describe 'receiving an eventric:joinRoom socket event', ->
     socketStub = null
 
     beforeEach ->
@@ -97,8 +97,7 @@ describe 'endpoint', ->
             done()
 
 
-
-  describe 'receiving a eventric:leaveRoom socket event', ->
+  describe 'receiving an eventric:leaveRoom socket event', ->
 
     socketStub = null
 
@@ -117,7 +116,7 @@ describe 'endpoint', ->
       expect(socketStub.leave.calledWith 'RoomName').to.be.ok
 
 
-  describe 'receiving a eventric:rpcRequest event', ->
+  describe 'receiving an eventric:rpcRequest event', ->
     socketStub = null
     rpcRequestFake = null
     rpcHandlerStub = null
@@ -201,11 +200,10 @@ describe 'endpoint', ->
       describe 'which rejects', ->
 
         responseFake = null
-        errorFake = null
 
         beforeEach (done) ->
           responseFake = {}
-          errorFake = {}
+          errorFake = new Error 'The error message'
           rpcRequestMiddlewareStub.returns new Promise (resolve, reject) -> reject errorFake
           rpcHandlerStub.yields null, responseFake
           endpoint.initialize
@@ -220,8 +218,15 @@ describe 'endpoint', ->
 
 
         it 'should emit a eventric:rpcResponse event with an error', ->
-          expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, error: errorFake, data: null).to.be.ok
-
+          expect(
+            socketStub.emit.calledWith(
+              'eventric:rpcResponse', {
+                rpcId: rpcRequestFake.rpcId,
+                error: {message: 'The error message', name: 'Error'},
+                data: null
+              }
+            )
+          ).to.be.ok
 
 
   describe '#publish', ->
