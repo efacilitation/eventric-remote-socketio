@@ -42,7 +42,8 @@ describe 'SocketIO remote scenario', ->
 
       exampleContext.addCommandHandlers
         CommandWhichRejects: ->
-          throw new Error 'The error message'
+          error = throw new Error 'The error message'
+          error.customProperty = 'customValue'
         DoSomething: doSomethingStub
 
       exampleContext.initialize()
@@ -51,22 +52,20 @@ describe 'SocketIO remote scenario', ->
         exampleRemote.setClient socketIORemoteClient
 
 
-    it 'should send error instances serialized with "name" and "message" properties', (done) ->
+    it 'should be possible to access the original error message of an error from a command handler', ->
       exampleRemote.command 'CommandWhichRejects'
       .catch (error) ->
         expect(error instanceof Error).to.be.true
-        expect(error.name).to.equal 'Error'
         expect(error.message).to.contain 'The error message'
-        done()
+        expect(error.originalErrorMessage).to.equal 'The error message'
 
 
-    it 'should be possible to receive and execute commands', (done) ->
+    it 'should be possible to receive and execute commands', ->
       exampleRemote.command 'CreateSomething'
       .then (aggregateId) ->
         exampleRemote.command 'DoSomething', aggregateId: aggregateId
-        .then ->
-          expect(doSomethingStub).to.have.been.calledOnce
-          done()
+      .then ->
+        expect(doSomethingStub).to.have.been.calledOnce
 
 
     it 'should be possible to subscribe handlers to domain events', (done) ->
