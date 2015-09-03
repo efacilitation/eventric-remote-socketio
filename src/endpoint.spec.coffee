@@ -149,13 +149,13 @@ describe 'endpoint', ->
     describe 'given the configured rpc handler rejects', ->
 
       it 'should emit the an eventric:rpcResponse event with an error', ->
-        error = new Error 'Custom error'
+        error = new Error 'The error message'
         rpcHandlerStub.yields error, null
         endpoint.initialize
           ioInstance: ioStub
         expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
           rpcId: rpcRequestFake.rpcId
-          error: sinon.match.has 'message', 'Custom error'
+          error: sinon.match.has 'message', 'The error message'
           data: null
 
 
@@ -167,6 +167,21 @@ describe 'endpoint', ->
         receivedError = socketStub.emit.getCall(0).args[1].error
         expect(receivedError).to.be.an.instanceOf Object
         expect(receivedError).not.to.be.an.instanceOf Error
+
+
+      it 'should emit the event with an error object including custom properties excluding the stack', ->
+        error = new Error 'The error message'
+        error.someProperty = 'someValue'
+        rpcHandlerStub.yields error, null
+        endpoint.initialize
+          ioInstance: ioStub
+        expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
+          rpcId: rpcRequestFake.rpcId
+          error:
+            message: 'The error message'
+            name: 'Error'
+            someProperty: 'someValue'
+          data: null
 
 
     describe 'given a rpc request middleware which resolves', ->
@@ -216,12 +231,10 @@ describe 'endpoint', ->
 
 
       it 'should emit an eventric:rpcResponse event with an error object', ->
-        expect(socketStub.emit).to.have.been.calledWith(
-            'eventric:rpcResponse'
-              rpcId: rpcRequestFake.rpcId
-              error: sinon.match.object
-              data: null
-          )
+        expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
+          rpcId: rpcRequestFake.rpcId
+          error: sinon.match.object
+          data: null
 
 
   describe '#publish', ->
