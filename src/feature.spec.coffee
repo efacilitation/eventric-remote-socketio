@@ -43,7 +43,6 @@ describe 'SocketIO remote scenario', ->
       exampleContext.addCommandHandlers
         CommandWhichRejects: ->
           error = throw new Error 'The error message'
-          error.customProperty = 'customValue'
         DoSomething: doSomethingStub
 
       exampleContext.initialize()
