@@ -42,7 +42,7 @@ describe 'SocketIO remote scenario', ->
 
       exampleContext.addCommandHandlers
         CommandWhichRejects: ->
-          error = throw new Error 'The error message'
+          throw new Error 'The error message'
         DoSomething: doSomethingStub
 
       exampleContext.initialize()
