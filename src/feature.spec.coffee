@@ -11,7 +11,8 @@ describe 'SocketIO remote scenario', ->
     socketServer = require('socket.io')()
     socketServer.listen 3000
     socketIORemoteEndpoint = require './endpoint'
-    socketIORemoteEndpoint.initialize ioInstance: socketServer, ->
+    socketIORemoteEndpoint.initialize ioInstance: socketServer
+    .then ->
       eventric.addRemoteEndpoint socketIORemoteEndpoint
       socketClient = require('socket.io-client')('http://localhost:3000')
       socketClient.on 'connect', ->

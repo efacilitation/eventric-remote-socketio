@@ -1,25 +1,26 @@
 class SocketIORemoteEndpoint
 
-  initialize: (options = {}, callback = ->) ->
-    @_processOptions options
+  initialize: (options = {}) ->
+    new Promise (resolve) =>
+      @_processOptions options
 
-    @_io.sockets.on 'connection', (socket) =>
-      socket.on 'eventric:rpcRequest', (rpcRequest) =>
-        @_handleRpcRequestEvent rpcRequest, socket
+      @_io.sockets.on 'connection', (socket) =>
+        socket.on 'eventric:rpcRequest', (rpcRequest) =>
+          @_handleRpcRequestEvent rpcRequest, socket
 
-      # TODO: Remove JoinRoom event listener as soon as stream subscriptions are implenented correctly
-      socket.on 'eventric:joinRoom', (roomName) =>
-        @_rpcRequestMiddleware roomName, socket
-        .then ->
-          socket.join roomName
-        .catch (error) ->
-          # TODO: Error handling?
+        # TODO: Remove JoinRoom event listener as soon as stream subscriptions are implenented correctly
+        socket.on 'eventric:joinRoom', (roomName) =>
+          @_rpcRequestMiddleware roomName, socket
+          .then ->
+            socket.join roomName
+          .catch (error) ->
+            # TODO: Error handling?
 
-      # TODO: Remove LeaveRoom event listener as soon as stream subscriptions are implenented correctly
-      socket.on 'eventric:leaveRoom', (roomName) ->
-        socket.leave roomName
+        # TODO: Remove LeaveRoom event listener as soon as stream subscriptions are implenented correctly
+        socket.on 'eventric:leaveRoom', (roomName) ->
+          socket.leave roomName
 
-    callback()
+      resolve()
 
 
   setRPCHandler: (@_handleRPCRequest) ->

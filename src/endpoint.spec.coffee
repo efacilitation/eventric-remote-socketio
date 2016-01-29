@@ -21,8 +21,8 @@ describe 'endpoint', ->
     it 'should register a connection handler on the Socket.IO server', ->
       endpoint.initialize
         ioInstance: ioStub
-
-      expect(ioStub.sockets.on).to.have.been.calledWith 'connection', sinon.match.func
+      .then ->
+        expect(ioStub.sockets.on).to.have.been.calledWith 'connection', sinon.match.func
 
 
   describe 'receiving an eventric:joinRoom socket event', ->
@@ -40,10 +40,11 @@ describe 'endpoint', ->
     it 'should join the room', ->
       endpoint.initialize
         ioInstance: ioStub
-      expect(socketStub.join).to.have.been.calledWith 'RoomName'
+      .then ->
+        expect(socketStub.join).to.have.been.calledWith 'RoomName'
 
 
-    describe 'given a rpc request middleware', ->
+    describe 'given an rpc request middleware', ->
 
       rpcRequestMiddlewareStub = null
 
@@ -51,37 +52,33 @@ describe 'endpoint', ->
         rpcRequestMiddlewareStub = sandbox.stub()
 
 
-      it 'should call the middleware and pass in the room name and the assiocated socket', (done) ->
+      it 'should call the middleware and pass in the room name and the assiocated socket', ->
         rpcRequestMiddlewareStub.returns new Promise (resolve) -> resolve()
         endpoint.initialize
           ioInstance: ioStub
           rpcRequestMiddleware: rpcRequestMiddlewareStub
-
-        setTimeout ->
+        .then ->
           expect(rpcRequestMiddlewareStub).to.have.been.called
           expect(rpcRequestMiddlewareStub.firstCall.args[0]).to.equal 'RoomName'
           expect(rpcRequestMiddlewareStub.firstCall.args[1]).to.equal socketStub
-          done()
 
 
-      it 'should join the room given the middleware resolves', (done) ->
+      it 'should join the room given the middleware resolves', ->
         rpcRequestMiddlewareStub.returns Promise.resolve()
         endpoint.initialize
           ioInstance: ioStub
           rpcRequestMiddleware: rpcRequestMiddlewareStub
-        setTimeout ->
+        .then ->
           expect(socketStub.join).to.have.been.calledWith 'RoomName'
-          done()
 
 
-      it 'should not join the room given the middleware rejects', (done) ->
+      it 'should not join the room given the middleware rejects', ->
         rpcRequestMiddlewareStub.returns Promise.reject()
         endpoint.initialize
           ioInstance: ioStub
           rpcRequestMiddleware: rpcRequestMiddlewareStub
-        setTimeout ->
+        .then ->
           expect(socketStub.join.calledOnce).to.be.false
-          done()
 
 
   describe 'receiving an eventric:leaveRoom socket event', ->
@@ -95,7 +92,8 @@ describe 'endpoint', ->
       socketStub.on.withArgs('eventric:leaveRoom').yields 'RoomName'
       endpoint.initialize
         ioInstance: ioStub
-      expect(socketStub.leave.calledWith 'RoomName').to.be.ok
+      .then ->
+        expect(socketStub.leave.calledWith 'RoomName').to.be.ok
 
 
   describe 'receiving an eventric:rpcRequest event', ->
@@ -118,7 +116,8 @@ describe 'endpoint', ->
     it 'should execute the configured rpc handler', ->
       endpoint.initialize
         ioInstance: ioStub
-      expect(rpcHandlerStub).to.have.been.calledWith rpcRequestFake, sinon.match.func
+      .then ->
+        expect(rpcHandlerStub).to.have.been.calledWith rpcRequestFake, sinon.match.func
 
 
     it 'should emit the return value of the configured handler as eventric:rpcResponse', ->
@@ -126,24 +125,23 @@ describe 'endpoint', ->
       rpcHandlerStub.yields null, responseFake
       endpoint.initialize
         ioInstance: ioStub
-      expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
-        rpcId: rpcRequestFake.rpcId
-        error: null
-        data: responseFake
+      .then ->
+        expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
+          rpcId: rpcRequestFake.rpcId
+          error: null
+          data: responseFake
 
 
-    it 'should call the middleware with the rpc request data and the assiocated socket given a rpc request middleware', (done) ->
+    it 'should call the middleware with the rpc request data and the assiocated socket given a rpc request middleware', ->
       rpcRequestMiddlewareStub = sandbox.stub()
       rpcRequestMiddlewareStub.returns new Promise (resolve) -> resolve()
       endpoint.initialize
         ioInstance: ioStub
         rpcRequestMiddleware: rpcRequestMiddlewareStub
-
-      setTimeout ->
+      .then ->
         expect(rpcRequestMiddlewareStub).to.have.been.called
         expect(rpcRequestMiddlewareStub.firstCall.args[0]).to.equal rpcRequestFake
         expect(rpcRequestMiddlewareStub.firstCall.args[1]).to.equal socketStub
-        done()
 
 
     describe 'given the configured rpc handler rejects', ->
@@ -153,10 +151,11 @@ describe 'endpoint', ->
         rpcHandlerStub.yields error, null
         endpoint.initialize
           ioInstance: ioStub
-        expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
-          rpcId: rpcRequestFake.rpcId
-          error: sinon.match.has 'message', 'The error message'
-          data: null
+        .then ->
+          expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
+            rpcId: rpcRequestFake.rpcId
+            error: sinon.match.has 'message', 'The error message'
+            data: null
 
 
       it 'should emit the an eventric:rpcResponse event with a serializable error object', ->
@@ -164,9 +163,10 @@ describe 'endpoint', ->
         rpcHandlerStub.yields error, null
         endpoint.initialize
           ioInstance: ioStub
-        receivedError = socketStub.emit.getCall(0).args[1].error
-        expect(receivedError).to.be.an.instanceOf Object
-        expect(receivedError).not.to.be.an.instanceOf Error
+        .then ->
+          receivedError = socketStub.emit.getCall(0).args[1].error
+          expect(receivedError).to.be.an.instanceOf Object
+          expect(receivedError).not.to.be.an.instanceOf Error
 
 
       it 'should emit the event with an error object including custom properties excluding the stack', ->
@@ -175,13 +175,14 @@ describe 'endpoint', ->
         rpcHandlerStub.yields error, null
         endpoint.initialize
           ioInstance: ioStub
-        expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
-          rpcId: rpcRequestFake.rpcId
-          error:
-            message: 'The error message'
-            name: 'Error'
-            someProperty: 'someValue'
-          data: null
+        .then ->
+          expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
+            rpcId: rpcRequestFake.rpcId
+            error:
+              message: 'The error message'
+              name: 'Error'
+              someProperty: 'someValue'
+            data: null
 
 
     describe 'given a rpc request middleware which resolves', ->
@@ -190,7 +191,7 @@ describe 'endpoint', ->
       responseFake = null
 
 
-      beforeEach (done) ->
+      beforeEach ->
         rpcRequestMiddlewareStub = sandbox.stub()
         responseFake = {}
         rpcRequestMiddlewareStub.returns new Promise (resolve) -> resolve()
@@ -198,8 +199,6 @@ describe 'endpoint', ->
         endpoint.initialize
           ioInstance: ioStub
           rpcRequestMiddleware: rpcRequestMiddlewareStub
-        setTimeout ->
-          done()
 
 
       it 'should execute the configured rpc handler', ->
@@ -210,11 +209,11 @@ describe 'endpoint', ->
         expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, error: null, data: responseFake).to.be.ok
 
 
-    describe 'given a rpc request middleware which rejects', ->
+    describe 'given an rpc request middleware which rejects', ->
 
       rpcRequestMiddlewareStub = null
 
-      beforeEach (done) ->
+      beforeEach ->
         rpcRequestMiddlewareStub = sandbox.stub()
         error = new Error 'The error message'
         rpcRequestMiddlewareStub.returns Promise.reject error
@@ -222,8 +221,6 @@ describe 'endpoint', ->
         endpoint.initialize
           ioInstance: ioStub
           rpcRequestMiddleware: rpcRequestMiddlewareStub
-        setTimeout ->
-          done()
 
 
       it 'should not execute the configured rpc handler', ->
@@ -246,8 +243,8 @@ describe 'endpoint', ->
         emit: sandbox.stub()
       endpoint.initialize
         ioInstance: ioStub
-
-      ioStub.to = sandbox.stub().returns channelStub
+      .then ->
+        ioStub.to = sandbox.stub().returns channelStub
 
     it 'should emit an event with payload to the correct channel given only a context name', ->
       payload = {}
