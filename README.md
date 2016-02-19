@@ -8,9 +8,9 @@ in order to communicate with remote contexts via Websockets (client to server an
 
 ### API
 
-#### initialize(options, callback)
+#### initialize(options)
 
-Initializes the endpoint and calls the given callback when the initialization is finished.
+Initializes the endpoint. Returns a promise which resolves when the initialization is finished.
 Two optional options may be passed into the function:
 
 1. `ioInstance`: an instance of a Socket.IO server; if not given, a new one will be spawned automatically
