@@ -20,6 +20,7 @@ describe 'SocketIO remote scenario', ->
         socketIORemoteClient.initialize ioClientInstance: socketClient
         .then done
         .catch done
+    return
 
 
   after ->
@@ -48,7 +49,7 @@ describe 'SocketIO remote scenario', ->
 
       exampleContext.initialize()
       .then ->
-        exampleRemote = eventric.remote 'Example'
+        exampleRemote = eventric.remoteContext 'Example'
         exampleRemote.setClient socketIORemoteClient
 
 
@@ -68,7 +69,7 @@ describe 'SocketIO remote scenario', ->
         expect(doSomethingStub).to.have.been.calledOnce
 
 
-    it 'should be possible to subscribe handlers to domain events', (done) ->
+    it 'should be possible to subscribe handlers to domain events', ->
       exampleRemote.subscribeToDomainEvent 'SomethingCreated'
       .then (aggregateId) ->
         createSomethingStub()
@@ -76,17 +77,16 @@ describe 'SocketIO remote scenario', ->
       exampleRemote.command 'CreateSomething'
       .then ->
         expect(createSomethingStub).to.have.been.calledOnce
-        done()
 
 
-    it 'should be possible to subscribe handlers to domain events with specific aggregate ids', (done) ->
+    it 'should be possible to subscribe handlers to domain events with specific aggregate ids', ->
       exampleRemote.subscribeToDomainEventWithAggregateId 'SomethingModified'
       .then (aggregateId) ->
         modifySomethingStub()
         exampleRemote.unsubscribeFromDomainEvent aggregateId
+
       exampleRemote.command 'CreateSomething'
       .then (aggregateId) ->
         exampleRemote.command 'ModifySomething', id: aggregateId
-        .then ->
-          expect(modifySomethingStub).to.have.been.calledOnce
-          done()
+      .then ->
+        expect(modifySomethingStub).to.have.been.calledOnce

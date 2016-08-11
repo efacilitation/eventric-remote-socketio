@@ -202,11 +202,14 @@ describe 'endpoint', ->
 
 
       it 'should execute the configured rpc handler', ->
-        expect(rpcHandlerStub.calledWith rpcRequestFake, sinon.match.func).to.be.ok
+        expect(rpcHandlerStub).to.have.been.calledWith rpcRequestFake, sinon.match.func
 
 
       it 'should emit the return value of the configured handler as eventric:rpcResponse', ->
-        expect(socketStub.emit.calledWith 'eventric:rpcResponse', rpcId: rpcRequestFake.rpcId, error: null, data: responseFake).to.be.ok
+        expect(socketStub.emit).to.have.been.calledWith 'eventric:rpcResponse',
+          rpcId: rpcRequestFake.rpcId
+          error: null
+          data: responseFake
 
 
     describe 'given an rpc request middleware which rejects', ->
@@ -214,13 +217,12 @@ describe 'endpoint', ->
       rpcRequestMiddlewareStub = null
 
       beforeEach ->
-        rpcRequestMiddlewareStub = sandbox.stub()
         error = new Error 'The error message'
-        rpcRequestMiddlewareStub.returns Promise.reject error
-        rpcHandlerStub.yields null, {}
         endpoint.initialize
           ioInstance: ioStub
-          rpcRequestMiddleware: rpcRequestMiddlewareStub
+          rpcRequestMiddleware: sandbox.stub().returns Promise.reject console.error
+        new Promise (resolve) ->
+          setTimeout resolve
 
 
       it 'should not execute the configured rpc handler', ->
