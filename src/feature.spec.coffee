@@ -1,25 +1,29 @@
-describe 'SocketIO remote scenario', ->
+describe 'socket io remote endpoint (socket io remote client integration)', ->
   eventric = null
   socketIORemoteEndpoint = null
   socketIORemoteClient = null
-  socketServer = null
-  socketClient = null
+  socketIoServer = null
+  socketIoClient = null
+
 
   before (done) ->
     eventric = require 'eventric'
 
-    socketServer = require('socket.io')()
-    socketServer.listen 3000
+    socketIoServer = require('socket.io')()
+    socketIoServer.listen 3000
+
     socketIORemoteEndpoint = require './endpoint'
-    socketIORemoteEndpoint.initialize ioInstance: socketServer
-    .then ->
-      eventric.addRemoteEndpoint socketIORemoteEndpoint
-      socketClient = require('socket.io-client')('http://localhost:3000')
-      socketClient.on 'connect', ->
-        socketIORemoteClient = require 'eventric-remote-socketio-client'
-        socketIORemoteClient.initialize ioClientInstance: socketClient
-        .then done
-        .catch done
+    socketIORemoteEndpoint.initialize socketIoServer: socketIoServer
+
+    eventric.addRemoteEndpoint socketIORemoteEndpoint
+
+    socketIoClient = require('socket.io-client')('http://localhost:3000')
+    socketIoClient.on 'connect', ->
+      socketIORemoteClient = require 'eventric-remote-socketio-client'
+      socketIORemoteClient.initialize ioClientInstance: socketIoClient
+      .then done
+      .catch done
+
     return
 
 
