@@ -1,7 +1,8 @@
 class SocketIORemoteEndpoint
 
   initialize: ({socketIoServer, rpcRequestMiddleware}) ->
-    # TODO: throw error if not set
+    if not socketIoServer
+      throw new Error 'No socket io server instance passed'
     @_socketIoServer = socketIoServer
     @_rpcRequestMiddleware = rpcRequestMiddleware
 
@@ -61,7 +62,6 @@ class SocketIORemoteEndpoint
       return @_rpcRequestMiddleware rpcRequest, socket
 
 
-  # TODO: Refactor
   _convertErrorToSerializableObject: (error) ->
     serializableErrorObject =
       name: error.name

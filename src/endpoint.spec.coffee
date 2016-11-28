@@ -16,12 +16,16 @@ describe 'socket io remote endpoint', ->
     sandbox.restore()
 
 
-  initializeEndpoint = (endpoint, options) ->
-    endpoint.initialize options
+  initializeEndpoint = (socketIoRemoteEndpoint, options) ->
+    socketIoRemoteEndpoint.initialize options
     return new Promise (resolve) -> setTimeout resolve
 
 
   describe '#initialize', ->
+
+    it 'should throw an error given no socket io server instance', ->
+      expect(-> socketIoRemoteEndpoint.initialize {}).to.throw Error, 'No socket io server instance passed'
+
 
     it 'should register a connection handler on the Socket.IO server', ->
       initializeEndpoint socketIoRemoteEndpoint,
