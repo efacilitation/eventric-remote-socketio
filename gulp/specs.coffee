@@ -5,6 +5,6 @@ module.exports = (gulp) ->
   gulp.task 'specs', ->
     gulp.src [
       'src/spec_setup.coffee'
-      'src/*.coffee'
+      'src/**/*.coffee'
     ]
     .pipe mocha()
