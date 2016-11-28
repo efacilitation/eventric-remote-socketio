@@ -15,5 +15,6 @@ gulp.task 'watch', ->
     'specs'
   ]
 
+require('./gulp/lint')(gulp)
 require('./gulp/build')(gulp)
 require('./gulp/specs')(gulp)

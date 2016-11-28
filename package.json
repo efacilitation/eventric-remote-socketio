@@ -13,7 +13,7 @@
   },
   "main": "build/src/endpoint.js",
   "scripts": {
-    "test": "gulp specs",
+    "test": "gulp lint && gulp specs",
     "prepublish": "gulp build"
   },
   "dependencies": {
