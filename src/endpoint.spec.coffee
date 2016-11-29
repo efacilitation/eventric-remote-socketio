@@ -1,3 +1,5 @@
+# TODO: Refactor specs to test "addRpcRequestMiddleware" separately
+
 describe 'socket io remote endpoint', ->
   sandbox = null
   socketIoRemoteEndpoint = null
