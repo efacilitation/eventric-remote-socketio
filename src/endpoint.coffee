@@ -1,10 +1,11 @@
 class SocketIORemoteEndpoint
 
-  initialize: ({socketIoServer, rpcRequestMiddleware}) ->
+  initialize: ({socketIoServer, rpcRequestMiddleware, logger}) ->
     if not socketIoServer
       throw new Error 'No socket io server instance passed'
     @_socketIoServer = socketIoServer
     @_rpcRequestMiddleware = rpcRequestMiddleware
+    @_logger = logger
 
     @_addSocketIoEventBindings()
 
@@ -51,15 +52,20 @@ class SocketIORemoteEndpoint
     @_executeRpcRequestMiddleware roomName, socket
     .then ->
       socket.join roomName
+    .catch (error) =>
+      if @_logger
+        @_logger.error error, '\n', error.stack
+      else
+        throw error
 
 
-  _executeRpcRequestMiddleware: (rpcRequest, socket) ->
+  _executeRpcRequestMiddleware: (data, socket) ->
     if not @_rpcRequestMiddleware
       return Promise.resolve()
 
     Promise.resolve()
     .then =>
-      return @_rpcRequestMiddleware rpcRequest, socket
+      return @_rpcRequestMiddleware data, socket
 
 
   _convertErrorToSerializableObject: (error) ->
