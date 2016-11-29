@@ -1,7 +1,7 @@
 describe 'socket io remote endpoint (socket io remote client integration)', ->
   eventric = null
-  socketIORemoteEndpoint = null
-  socketIORemoteClient = null
+  socketIoRemoteEndpoint = null
+  socketIoRemoteClient = null
   socketIoServer = null
   socketIoClient = null
 
@@ -12,15 +12,16 @@ describe 'socket io remote endpoint (socket io remote client integration)', ->
     socketIoServer = require('socket.io')()
     socketIoServer.listen 3000
 
-    socketIORemoteEndpoint = require './endpoint'
-    socketIORemoteEndpoint.initialize socketIoServer: socketIoServer
+    SocketIoRemoteEndpoint = require './endpoint'
+    socketIoRemoteEndpoint = new SocketIoRemoteEndpoint
+    socketIoRemoteEndpoint.initialize socketIoServer: socketIoServer
 
-    eventric.addRemoteEndpoint socketIORemoteEndpoint
+    eventric.addRemoteEndpoint socketIoRemoteEndpoint
 
     socketIoClient = require('socket.io-client')('http://localhost:3000')
     socketIoClient.on 'connect', ->
-      socketIORemoteClient = require 'eventric-remote-socketio-client'
-      socketIORemoteClient.initialize ioClientInstance: socketIoClient
+      socketIoRemoteClient = require 'eventric-remote-socketio-client'
+      socketIoRemoteClient.initialize ioClientInstance: socketIoClient
       .then done
       .catch done
 
@@ -28,14 +29,14 @@ describe 'socket io remote endpoint (socket io remote client integration)', ->
 
 
   after ->
-    socketIORemoteEndpoint.close()
-    socketIORemoteClient.disconnect()
+    socketIoRemoteEndpoint.close()
+    socketIoRemoteClient.disconnect()
     require._cache = {}
 
 
   describe 'creating an example context and adding a socketio remote endpoint', ->
     exampleRemote = null
-    socketIORemoteClient = null
+    socketIoRemoteClient = null
     doSomethingStub = null
     createSomethingStub = null
     modifySomethingStub = null
@@ -54,7 +55,7 @@ describe 'socket io remote endpoint (socket io remote client integration)', ->
       exampleContext.initialize()
       .then ->
         exampleRemote = eventric.remoteContext 'Example'
-        exampleRemote.setClient socketIORemoteClient
+        exampleRemote.setClient socketIoRemoteClient
 
 
     it 'should be possible to access the original error message of an error from a command handler', ->

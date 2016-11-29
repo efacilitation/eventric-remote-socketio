@@ -1,13 +1,20 @@
 class SocketIORemoteEndpoint
 
-  initialize: ({socketIoServer, rpcRequestMiddleware, logger}) ->
+  constructor: ->
+    @_rpcRequestMiddlewareArray = []
+
+
+  initialize: ({socketIoServer, logger}) ->
     if not socketIoServer
       throw new Error 'No socket io server instance passed'
     @_socketIoServer = socketIoServer
-    @_rpcRequestMiddleware = rpcRequestMiddleware
     @_logger = logger
 
     @_addSocketIoEventBindings()
+
+
+  addRpcRequestMiddleware: (rpcRequestMiddleware) ->
+    @_rpcRequestMiddlewareArray.push rpcRequestMiddleware
 
 
   _addSocketIoEventBindings: ->
@@ -60,12 +67,11 @@ class SocketIORemoteEndpoint
 
 
   _executeRpcRequestMiddleware: (data, socket) ->
-    if not @_rpcRequestMiddleware
-      return Promise.resolve()
-
-    Promise.resolve()
-    .then =>
-      return @_rpcRequestMiddleware data, socket
+    rpcRequestMiddlewarePromise = Promise.resolve()
+    @_rpcRequestMiddlewareArray.forEach (rpcRequestMiddleware) ->
+      rpcRequestMiddlewarePromise = rpcRequestMiddlewarePromise.then ->
+        return rpcRequestMiddleware data, socket
+    rpcRequestMiddlewarePromise
 
 
   _convertErrorToSerializableObject: (error) ->
@@ -100,4 +106,4 @@ class SocketIORemoteEndpoint
     @_socketIoServer.close()
 
 
-module.exports = new SocketIORemoteEndpoint
+module.exports = SocketIORemoteEndpoint
