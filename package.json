@@ -7,7 +7,7 @@
     "socket-io",
     "websockets"
   ],
-  "version": "0.7.2",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/efacilitation/eventric-remote-socketio-endpoint.git"
